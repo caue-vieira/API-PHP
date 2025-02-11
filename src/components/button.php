@@ -4,11 +4,16 @@
     </button>
     <style>
         button {
-            padding: 12px;
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            padding-left: 20px;
+            padding-right: 20px;
             border-radius: 8px;
             border: none;
             font-weight: bold;
             font-size: 16px;
+            height: 40px;
         }
         #button {
             background-color: #0d0d0d;

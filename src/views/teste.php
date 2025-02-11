@@ -11,8 +11,12 @@
 </head>
 <body>
     <h1>Testando</h1>
-    <?php Input(null, false, "teste"); ?>
-    <?php Button("Teste botão", "clica"); ?>
+    <div id="div-teste">
+        <?php Input(null, false, null, "Digite algo"); ?>
+        <div id="div-teste-botao">
+            <?php Button("Salvar", "clica"); ?>
+        </div>
+    </div>
 </body>
 <script>
     function clica() {
@@ -21,4 +25,15 @@
             .then(data => console.log(data))
     }
 </script>
+<style>
+    #div-teste {
+        display: flex;
+        flex-direction: column;
+    }
+    #div-teste-botao {
+        width: 100%;
+        display: flex;
+        justify-content: end;
+    }
+</style>
 </html>
