@@ -1,5 +1,11 @@
-<?php function Button($texto, $onclick, ?string $variante = null) { ?>
-    <button id="button<?= $variante ? "-{$variante}" : '' ?>" onclick="<?= $onclick ?>()">
+<?php function Button($texto,
+    ?string $tipo = null,
+    ?string $id = null,
+    ?string $onclick = null,
+    ?string $variante = null,
+    ?string $css = null,) { ?>
+    <link rel="stylesheet" href="../public/styles/<?= $css ?>">
+    <button type="<?= $tipo ?>" id="<?= $id ?>" class="button<?= $variante ? "-{$variante}" : '' ?>" onclick="<?= $onclick ?>">
         <?= $texto ?>
     </button>
     <style>
@@ -15,20 +21,20 @@
             font-size: 16px;
             height: 40px;
         }
-        #button {
+        .button {
             background-color: #0d0d0d;
             color: white;
         }
-        #button:hover {
+        .button:hover {
             cursor: pointer;
             background-color: #33363d;
         }
 
-        #button-ghost {
+        .button-ghost {
             background-color: transparent;
             color: #0d0d0d;
         }
-        #button-ghost:hover {
+        .button-ghost:hover {
             cursor: pointer;
             background-color: lightgray;
         }
