@@ -5,7 +5,12 @@
     ?string $variante = null,
     ?string $css = null,) { ?>
     <link rel="stylesheet" href="../public/styles/<?= $css ?>">
-    <button type="<?= $tipo ?>" id="<?= $id ?>" class="button<?= $variante ? "-{$variante}" : '' ?>" onclick="<?= $onclick ?>">
+    <button 
+        <?= $tipo ? "type='$tipo'" : '' ?> 
+        <?= $id ? "id='$id'" : '' ?> 
+        class="button<?= $variante ? "-$variante" : '' ?>" 
+        <?= $onclick ? "onclick='$onclick'" : '' ?>
+    >
         <?= $texto ?>
     </button>
     <style>

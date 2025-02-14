@@ -1,9 +1,14 @@
 <?php
-class TurnoService {
+require_once __DIR__ . "/../interfaces/services/ITurnoService.php";
 
-    private TurnoRepository $turnoRepository;
+class TurnoService implements ITurnoService {
+    private ITurnoRepository $turnoRepository;
 
-    public function criarTurno(string $nome): array {
+    public function __construct(ITurnoRepository $turnoRepository) {
+        $this->turnoRepository = $turnoRepository;
+    }
+
+    public function criarTurno(string $nome): Turno {
         if(empty($nome)) {
             throw new Exception("O nome do turno não pode estar vazio");
         }

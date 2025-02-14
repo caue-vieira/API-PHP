@@ -36,7 +36,6 @@
             .then(response => response.json())
             .then(data => console.log(data))
         const input = document.getElementById("input");
-        console.log(input.value);
     }
 
     function enviaFormulario() {
@@ -47,8 +46,6 @@
             input_1: input.value,
             input_2: input2.value,
         };
-
-        console.log(formulario)
     }
 </script>
 <style>

@@ -1,47 +1,36 @@
 <?php
+require_once __DIR__ . "/../interfaces/services/ITurnoService.php";
+require_once __DIR__ . "/../interfaces/repository/ITurnoRepository.php";
+require_once __DIR__ . "/../services/TurnoService.php";
+require_once __DIR__ . "/../repository/TurnoRepository.php";
+
 class TurnosController {
-    public function filtrarTurnos() {
-        // $json = file_get_contents("php://input");
-        // $data = json_decode($json, true);
+    private ITurnoService $turnoService;
 
-        // if(!isset($data['data'])) {
-        //     http_response_code(400);
-        //     echo json_encode(['error' => 'Parâmetro "data" é obrigatório']);
-        //     return;
-        // }
-
-        $turnos = [
-            ["id" => 1, "nome" => "Turno A"],
-            ["id" => 2, "nome" => "Turno B"],    
-        ];
-
-        echo json_encode($turnos);
+    public function __construct() {
+        $this->turnoService = new TurnoService(new TurnoRepository());
     }
 
-    public function buscarTurnos() {
-        $turnos = [
-            ["id" => 3, "nome" => "Turno C"],
-            ["id" => 4, "nome" => "Turno D"],    
-        ];
-
-        echo json_encode($turnos);
-    }
-
-    public function cadastraTurno() {
+    public function cadastraTurnos() {
         $json = file_get_contents("php://input");
         $data = json_decode($json, true);
 
-        if(!isset($data['nome'])) {
+        try {
+            $this->turnoService->criarTurno($data['nome']);
+            echo json_encode(['message' => "Turno cadastrado com sucesso"]);
+        } catch(Exception $e) {
             http_response_code(400);
-            echo json_encode(['error' => "O campo 'nome' é obrigatório"]);
-            return;
+            echo json_encode(['error' => $e->getMessage()]);
         }
+    }
 
-        $novoTurno = [
-            "id" => rand(3, 100),
-            "nome" => $data['nome'],
-        ];
-
-        echo json_encode(['message' => "Turno cadastrado com sucesso!", "turno" => $novoTurno]);
+    public function buscarTurnos() {
+        try {
+            $turnos = $this->turnoService->buscaTurnos();
+            echo json_encode($turnos);
+        } catch(Exception $e) {
+            http_response_code(400);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
     }
 }
