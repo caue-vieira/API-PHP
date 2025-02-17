@@ -1,6 +1,7 @@
 <?php include __DIR__ . "/../components/button.php"; ?>
 <?php include __DIR__ . "/../components/input.php"; ?>
 <?php include __DIR__ . "/../components/label.php"; ?>
+<?php include __DIR__ . "/../components/select.php"; ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -13,12 +14,22 @@
 <body>
     <h1>Testando</h1>
     <div id="div-teste">
+        <?php
+            $options = [
+                "opcao1" => "Opção 1",
+                "opcao2" => "Opção 2",
+                "opcao3" => "Opção 3"
+            ]
+        ?>
         <form onsubmit="enviaFormulario()">
             <?php Label(for: "input", id: "label-input", texto: "Teste label", css: "teste-label.css") ?>
             <?php Input(id: "input", placeholder: "Digite algo", css: "teste-input.css"); ?>
 
             <?php Label(for: "input-2", texto: "Teste label 2") ?>
             <?php Input(id: "input-2", placeholder: "Digite algo", css: "teste-input.css", readonly: true); ?>
+
+            <?php Select(id: "select-teste", options: $options, default: "-Selecione-") ?>
+            <?php Select(default: "-Selecione-") ?>
 
             <?php Button(texto: "Enviar") ?>
         </form>

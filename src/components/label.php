@@ -3,7 +3,10 @@
     ?string $id = null,
     ?string $css = null) { ?>
     <link rel="stylesheet" href="../public/styles/<?= $css ?>">
-    <label id="<?= $id ?>" class="label-<?= $for ?>" for="<?= $for ?>"><?= $texto ?></label>
+    <label
+        <?= $id ? "id='{$id}'" : '' ?>
+        class="label-<?= $for ?>"
+        for="<?= $for ?>"><?= $texto ?></label>
     <style>
         label {
             font-size: 15px;

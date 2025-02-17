@@ -9,17 +9,27 @@ class TurnoService implements ITurnoService {
     }
 
     public function criarTurno(string $nome): Turno {
-        if(empty($nome)) {
-            throw new Exception("O nome do turno não pode estar vazio");
+        try {
+            if(empty($nome)) {
+                throw new EmptyFieldException("O nome do turno não pode estar vazio");
+            }
+            return $this->turnoRepository->criarTurno($nome);
+        } catch(Exception $e) {
+            throw new UnexpectedErrorException("Ocorreu um erro inesperado ao cadastrar o turno");
         }
-        return $this->turnoRepository->criarTurno($nome);
     }
 
     public function buscaTurnos(): array {
-        $turnos = $this->turnoRepository->buscaTurnos();
-        if(empty($turnos)) {
-            throw new Exception("Nenhum turno encontrado");
+        try {
+            $turnos = $this->turnoRepository->buscaTurnos();
+            if(empty($turnos)) {
+                throw new NotFoundException("Nenhum turno encontrado");
+            }
+            return $turnos;
+        } catch(NotFoundException $e) {
+            throw $e;
+        } catch(Exception $e) {
+            throw new UnexpectedErrorException("Ocorreu um erro inesperado ao buscar os turnos");
         }
-        return $turnos;
     }
 }

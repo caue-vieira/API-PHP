@@ -8,7 +8,13 @@
     $readonlyAttr = $readonly ? 'readonly' : ''
 ?>
     <link rel="stylesheet" href="../public/styles/<?= $css ?>">
-    <input id="<?= $id ?>" name="<?= $nome ?>" type="<?= $tipo ?>" <?= $readonlyAttr ?> value="<?= $value ?>" placeholder="<?= $placeholder ?>">
+    <input
+        <?= $id ? "id='{$id}'" : '' ?>
+        <?= $nome ? "name='{$nome}'" : '' ?>
+        <?= $tipo ? "type='{$tipo}'" : '' ?>
+        <?= $readonlyAttr ?>
+        <?= $value ? "value='{$value}'" : '' ?>
+        <?= $placeholder ? "placeholder='{$placeholder}'" : '' ?>>
     <style>
         input {
             height: 30px;
