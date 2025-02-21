@@ -1,5 +1,16 @@
 <?php
-require_once __DIR__ . "/../interfaces/services/IUsuarioService.php";
+namespace App\Services;
+
+use App\Config\UUID;
+use App\Errors\InvalidDataException;
+use App\Interfaces\Services\IUsuarioService;
+use App\Interfaces\Repository\IUsuarioRepository;
+use App\Errors\EmptyFieldException;
+use App\Errors\UnexpectedErrorException;
+use App\Errors\NotFoundException;
+use App\Models\Usuario;
+use App\Validators\Validator;
+use Exception;
 
 class UsuarioService implements IUsuarioService {
     private IUsuarioRepository $usuarioRepository;
@@ -8,14 +19,16 @@ class UsuarioService implements IUsuarioService {
         $this->usuarioRepository = $usuarioRepository;
     }
 
-    public function criarUsuario(string $nome, string $genero, string $email, string $senha): Usuario {
+    public function criarUsuario(string $nome, string $trilha, string $email): string {
         try {
-            if(empty($nome)) {
-                throw new EmptyFieldException("O nome do usuario não pode estar vazio");
-            }
-            return $this->usuarioRepository->criarUsuario($nome, $genero, $email, $senha);
+            $usuario = new Usuario(UUID::generateUuidV4(), $nome, $trilha, $email);
+            Validator::validateUser($usuario);
+            return $this->usuarioRepository->criarUsuario($nome, $trilha, $email);
         } catch(Exception $e) {
-            throw new UnexpectedErrorException("Ocorreu um erro inesperado ao cadastrar o usuario");
+            if ($e instanceof EmptyFieldException || $e instanceof InvalidDataException) {
+                throw $e;
+            }
+            throw new UnexpectedErrorException("Ocorreu um erro inesperado ao cadastrar o usuario: " . $e->getMessage());
         }
     }
 

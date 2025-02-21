@@ -1,26 +1,23 @@
 <?php
-require_once __DIR__ . "/../interfaces/repository/IUsuarioRepository.php";
-require_once __DIR__ . "/../models/Usuario.php";
+namespace App\Repository;
+
+use App\Database\Database;
+use App\Interfaces\Repository\IUsuarioRepository;
+use App\Models\Usuario;
+use App\Config\UUID;
 
 class UsuarioRepository implements IUsuarioRepository {
-    private array $usuarios = [
-        ['id' => 1, 'nome' => 'Pedro', 'genero' => 'M', 'email' => 'pedro@gmail.com', 'senha' => 'pedrinhoreidelas123'],
-        ['id' => 2, 'nome' => 'Lucas', 'genero' => 'M', 'email' => 'shaolinmatadordeporco@gmail.com', 'senha' => 'luquinhas'],
-    ];
 
-    public function criarUsuario(string $nome, string $genero, string $email, string $senha): Usuario {
-        $novoUsuario = new Usuario(rand(3, 100), $nome, $genero, $email, $senha);
-        $this->usuarios[] = [
-            'id' => $novoUsuario->getId(),
-            'nome' => $novoUsuario->getNome(),
-            'genero' => $novoUsuario->getGenero(),
-            'email' => $novoUsuario->getEmail(),
-            'senha' => $novoUsuario->getSenha(),
-        ];
-        return $novoUsuario;
+    public function criarUsuario(string $nome, string $trilha, string $email): string {
+        $novoUsuario = new Usuario(UUID::generateUuidV4(), $nome, $trilha, $email);
+        return $novoUsuario->getId();
     }
 
     public function buscaUsuarios(): array {
-        return $this->usuarios;
+        $pdo = Database::getConnection();
+        $stmt = $pdo->query("SELECT * FROM tb_usuarios");
+        $usuarios = $stmt->fetchAll();
+
+        return $usuarios;
     }
 }

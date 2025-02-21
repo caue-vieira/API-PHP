@@ -1,4 +1,6 @@
 <?php
+namespace App\Controllers;
+
 class ViewController {
     public static function renderView() {
         header("Content-Type: text/html");

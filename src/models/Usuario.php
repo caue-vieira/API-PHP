@@ -1,24 +1,24 @@
 <?php
-class Usuario {
-    private ?int $id;
-    private string $nome;
-    private string $genero;
-    private string $email;
-    private string $senha;
+namespace App\Models;
 
-    public function __construct(?int $id = null, string $nome, string $genero, string $email, string $senha) {
+class Usuario {
+    private ?string $id;
+    private string $nome;
+    private string $trilha;
+    private string $email;
+
+    public function __construct(?string $id = null, string $nome, string $trilha, string $email) {
         $this->id = $id;
         $this->nome = $nome;
-        $this->genero = $genero;
+        $this->trilha = $trilha;
         $this->email = $email;
-        $this->senha = $senha;
     }
 
-    public function getId(): ?int {
+    public function getId(): ?string {
         return $this->id;
     }
 
-    public function setId(int $id): void {
+    public function setId(string $id): void {
         $this->id = $id;
     }
 
@@ -30,12 +30,12 @@ class Usuario {
         $this->nome = $nome;
     }
 
-    public function getGenero(): string {
-        return $this->genero;
+    public function getTrilha(): string {
+        return $this->trilha;
     }
 
-    public function setGenero(string $genero): void {
-        $this->genero = $genero;
+    public function setTrilha(string $trilha): void {
+        $this->trilha = $trilha;
     }
 
     public function getEmail(): string {
@@ -44,13 +44,5 @@ class Usuario {
 
     public function setEmail(string $email): void {
         $this->email = $email;
-    }
-
-    public function getSenha(): string {
-        return $this->senha;
-    }
-
-    public function setSenha(string $senha): void {
-        $this->senha = $senha;
     }
 }

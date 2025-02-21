@@ -1,10 +1,20 @@
 <?php
-spl_autoload_register(function($class) {
-    $baseDir = __DIR__ . "/../controllers/";
+spl_autoload_register(function ($class) {
+    $baseDir = realpath(__DIR__ . "/../");
 
-    $file = $baseDir . $class . ".php";
+    $classPath = str_replace(["App\\", "\\"], ["", DIRECTORY_SEPARATOR], $class);
 
-    if(file_exists($file)) {
+    $dirPath = pathinfo($classPath, PATHINFO_DIRNAME);
+    $dirPath = strtolower($dirPath);
+
+    $fileName = pathinfo($classPath, PATHINFO_BASENAME);
+
+    $file = $baseDir . DIRECTORY_SEPARATOR . $dirPath . DIRECTORY_SEPARATOR . $fileName . ".php";
+
+
+    if (file_exists($file)) {
         require_once $file;
+    } else {
+        die(`Erro: Classe "$class" não encontrada. Caminho esperado: $file`);
     }
 });
