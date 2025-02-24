@@ -16,13 +16,14 @@ function createDirectories($baseDir, $projectName) {
         "$projectName/src/validators",
         "$projectName/src/views",
         "$projectName/src/views/components",
+        "$projectName/src/views/styles",
     ];
 
     foreach($dirs as $dir) {
         $dirPath = $baseDir . "/" . $dir;
         if(!is_dir($dirPath)) {
             mkdir($dirPath, 0755, true);
-            echo "Diretório criado: $dirPath\n";
+            echo "[INFO] Diretório criado: $dirPath\n";
         } else {
             echo "Diretório já existe: $dirPath\n";
         }
@@ -67,7 +68,7 @@ class Router {
         $requestUri = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
         $requestMethod = $_SERVER["REQUEST_METHOD"];
 
-        $requestUri = str_replace(["/teste php", "/teste%20php"], "", $requestUri);
+        $requestUri = str_replace(["/'. "$projectName" . '", "/'. "$projectName" . '"], "", $requestUri);
         $requestUri = trim($requestUri, "/");
 
         foreach($this->routes as $route) {
@@ -117,8 +118,6 @@ require_once "src/config/router.php";
 $router = new Router();
 
 $router->addRoute("GET", "api/view/{viewName}", ["ViewController", "renderView"]);
-$router->addRoute("GET", "api/usuarios/buscar", ["UsuariosController", "buscarUsuarios"]);
-$router->addRoute("POST", "api/usuarios/cadastrar", ["UsuariosController", "cadastraUsuario"]);
 
 $router->handleRequest();',
         "$projectName/.htaccess" => "RewriteEngine On
@@ -127,13 +126,145 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 
 RewriteRule ^(.*)$ index.php?/$1 [QSA,L]",
+        "$projectName/src/middleware/middleware.php" => '<?php
+namespace App\Middleware;
+
+class AuthMiddleware {
+    public static function auth($request) {
+        $headers = apache_request_headers();
+
+        if(isset($headers["Authorization"])) {
+            $authHeader = $headers["Authorization"];
+
+            if(strpos($authHeader, "Bearer") === 0) {
+                $jwt = substr($authHeader, 7);
+
+                $key = "chave_super_segura";
+
+                $payload = JWT::verifyJWT($jwt, $key);
+
+                if($payload) {
+                    return $payload;
+                } else {
+                    http_response_code(401);
+                    echo json_encode(["message" => "Token inválido"]);
+                    exit();
+                }
+            }
+        }
+        http_response_code(400);
+        echo json_encode(["message" => "Token não fornecido"]);
+        exit();
+    }
+}',
+        "$projectName/src/middleware/jwt.php" => '<?php
+namespace App\Middleware;
+
+class JWT {
+    public static function generateJWT($payload, $key) {
+        $header = json_encode(["alg" => "HS256", "typ" => "JWT"]);
+
+        $headerB64 = base64_encode($header);
+        $payloadB64 = base64_encode($payload);
+
+        $signature = hash_hmac("sha256", "$headerB64.$payloadB64", $key, true);
+        $signatureB64 = base64_encode($signature);
+
+        $token = "$headerB64.$payloadB64.$signatureB64";
+
+        return $token;
+    }
+
+    public static function verifyJWT($jwt, $key) {
+        list($headerB64, $payloadB64, $signatureB64) = explode(".", $jwt);
+
+        $signature = base64_decode($signatureB64);
+
+        $headerAndPayload = "$headerB64.$payloadB64";
+
+        $expectedSignature = hash_hmac("sha256", $headerAndPayload, $key, true);
+
+        if($signature !== $expectedSignature) {
+            return false;
+        }
+
+        $payloadJson = base64_decode($payloadB64);
+        $payload = json_decode($payloadJson, true);
+
+        return $payload;
+    }
+}',
+        "$projectName/src/database/database.php" => '<?php
+namespace App\Database;
+
+use PDO;
+use PDOException;
+
+class Database {
+    private static ?PDO $connection = null;
+
+    public static function getConnection(): ?PDO {
+        if(self::$connection === null) {
+            try {
+                $host = "localhost";
+                $dbname = "";
+                $username = "postgres";
+                $password = "";
+                $port = "5432";
+
+                self::$connection = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $username, $password, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, //Lança exceções em caso de erro
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, //Retorna dados em formato de array associativo
+                    PDO::ATTR_EMULATE_PREPARES => false //Usa prepared statements
+                ]);
+            } catch(PDOException $e) {
+                die("Ocorreu um erro ao conectar com o banco de dados: " . $e->getMessage());
+            }
+        }
+        return self::$connection;
+    }
+}',
+        "$projectName/src/controllers/ViewController.php" => '<?php
+namespace App\Controllers;
+
+class ViewController {
+    public static function renderView() {
+        header("Content-Type: text/html");
+        $uri = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
+        $parts = explode("/", trim($uri, "/"));
+        $viewName = end($parts);
+
+        $viewPath = __DIR__ . "/../views/" . $viewName . ".php";
+
+        if (file_exists($viewPath)) {
+            require_once $viewPath;
+        } else {
+            http_response_code(404);
+            echo "View não encontrada";
+        }
+    }
+}',
+        "$projectName/src/views/view.php" => '<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello, World</title>
+</head>
+<body>
+    <div style="display: flex; width: 100%; text-align: center">
+        <h1>Olá, mundo!</h1>
+        <p>Você criou este projeto utilizando o comando create-project.php</p>
+    </div>
+</body>
+</html>'
     ];
 
     foreach($files as $file => $content) {
         $filePath = $baseDir . "/" . $file;
         if(!file_exists($filePath)) {
             file_put_contents($filePath, $content);
-            echo "Arquivo criado: $filePath\n";
+            echo "[INFO] Arquivo criado: $filePath\n";
         } else {
             echo "Arquivo já existe: $filePath\n";
         }
@@ -143,7 +274,103 @@ RewriteRule ^(.*)$ index.php?/$1 [QSA,L]",
 function createProject($baseDir, $projectName) {
     createDirectories($baseDir, $projectName);
     createFiles($baseDir, $projectName);
-    echo "Projeto criado em $baseDir\n";
+
+    echo "\nDeseja utilizar TailwindCSS para estilização? (S/N)";
+    $input = trim(fgets(STDIN));
+
+    if(strtolower($input) === "s") {
+        echo "\n\033[1;32mIniciando configurações TailwindCSS...\033[0m\n";
+        installTailwind($baseDir, $projectName);
+    } 
+    
+    echo "\033[1;32mProjeto criado em $baseDir/$projectName\033[0m";
+}
+
+function installTailwind($baseDir, $projectName) {
+    $packageJson = [
+        "dependencies" => [
+            "@tailwindcss/cli" => "^4.0.6",
+            "tailwindcss" => "^4.0.6"
+        ]
+    ];
+
+    $packageJsonPath = $baseDir . "/$projectName/package.json";
+    file_put_contents($packageJsonPath, json_encode($packageJson));
+
+    echo "[INFO] Arquivo package.json criado\n";
+
+    echo "\033[1;32mInstalando TailwindCSS...\033[0m\n";
+
+    $output = shell_exec("cd {$baseDir}/$projectName && npm install");
+
+    if ($output === null) {
+        echo "\033[1;31m[ERRO] Falha ao executar o comando. Verifique se o npm está instalado corretamente\033[0m\n";
+        echo "\033[1;34m[ERRO] Iniciando projeto sem dependências...\033[0m\n";
+        cleanFilesIfError([$packageJsonPath]);
+        return;
+    }
+
+    $cssDir = $baseDir . "/$projectName/src/views/styles";
+    if(!is_dir($cssDir)) {
+        mkdir($cssDir, 0777, true);
+    }
+
+    $inputCssPath = $cssDir . "/input.css";
+    file_put_contents($inputCssPath, '@import "tailwindcss";');
+
+    echo "[INFO] Arquivo input.css criado em {$inputCssPath}\n";
+
+    $command = "cd {$baseDir}/$projectName && npx tailwindcss -i ./src/views/styles/input.css -o ./public/styles/output.css";
+    exec($command, $output, $exitCode);
+
+    if ($exitCode !== 0) {
+        echo "\033[1;31m[ERRO] Falha ao executar o TailwindCSS\033[0m\n";
+        echo "\033[1;34m[ERRO] Iniciando projeto sem dependências...\033[0m\n";
+        $outputCssPath = $baseDir . "/$projectName/public/styles/output.css";
+        $packageLockPath = $baseDir . "/$projectName/package-lock.json";
+        cleanFilesIfError([$packageJsonPath, $inputCssPath, $outputCssPath, $packageLockPath]);
+        return;
+    }
+
+    echo "\n\033[1;32mTailwindCSS instalado com sucesso\033[0m\n\n";
+    echo "\033[1;36mPara que o TailwindCSS aplique atualizações dinamicamente, execute o seguinte comando no terminal de seu projeto:\033[0m\n";
+    echo "\033[1;34mnpx tailwindcss -i ./src/views/styles/input.css -o ./public/styles/output.css --watch\033[0m\n\n";
+
+    if(file_exists($baseDir . "/$projectName/src/views/view.php")) {
+        unlink($baseDir . "/$projectName/src/views/view.php");
+        file_put_contents($baseDir . "/$projectName/src/views/view.php", '<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello, World</title>
+</head>
+<body>
+    <div class="w-full text-center">
+        <h1 class="text-2xl font-semibold">Olá, mundo!</h1>
+        <p>Você criou este projeto utilizando o comando create-project.php</p>
+    </div>
+</body>
+</html>');
+    }
+}
+
+function cleanFilesIfError($files) {
+    foreach($files as $file) {
+        if(file_exists($file)) {
+            unlink($file);
+            echo "\033[1;33m[INFO] Arquivo removido: {$file}\033[0m\n";
+        }
+    }
+}
+
+function cleanDirsIfError($dirs) {
+    foreach($dirs as $dir) {
+        if(is_dir($dir) && count(scandir($dir)) == 2) {
+            rmdir($dir);
+            echo "\033[1;33m[INFO] Diretório removido: {$dir}\033[0m\n";
+        }
+    }
 }
 
 if($argc < 2) {

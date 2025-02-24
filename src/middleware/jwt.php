@@ -3,12 +3,12 @@ namespace App\Middleware;
 
 class JWT {
     public static function generateJWT($payload, $key) {
-        $header = json_encode(['alg' => 'HS256', 'typ' => 'JWT']);
+        $header = json_encode(["alg" => "HS256", "typ" => "JWT"]);
 
         $headerB64 = base64_encode($header);
-        $payloadB64 = base64_encode($payload);
+        $payloadB64 = base64_encode(json_encode($payload));
 
-        $signature = hash_hmac('sha256', "$headerB64.$payloadB64", $key, true);
+        $signature = hash_hmac("sha256", "$headerB64.$payloadB64", $key, true);
         $signatureB64 = base64_encode($signature);
 
         $token = "$headerB64.$payloadB64.$signatureB64";
@@ -17,7 +17,7 @@ class JWT {
     }
 
     public static function verifyJWT($jwt, $key) {
-        list($headerB64, $payloadB64, $signatureB64) = explode('.', $jwt);
+        list($headerB64, $payloadB64, $signatureB64) = explode(".", $jwt);
 
         $signature = base64_decode($signatureB64);
 

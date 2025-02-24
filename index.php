@@ -11,5 +11,6 @@ $router = new Router();
 $router->addRoute("GET", "api/view/{viewName}", ["ViewController", "renderView"]);
 $router->addRoute("GET", "api/usuarios/buscar", ["UsuariosController", "buscarUsuarios"]);
 $router->addRoute("POST", "api/usuarios/cadastrar", ["UsuariosController", "cadastraUsuario"]);
+$router->addRoute("POST", "api/login", ["UsuariosController", "login"]);
 
 $router->handleRequest();

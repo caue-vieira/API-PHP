@@ -20,4 +20,12 @@ class UsuarioRepository implements IUsuarioRepository {
 
         return $usuarios;
     }
+
+    public function login(string $nome_usuario, string $senha): array | bool {
+        $pdo = Database::getConnection();
+        $stmt = $pdo->query("SELECT * FROM tb_usuarios WHERE login = '{$nome_usuario}' AND senha = '{$senha}'");
+        $usuario = $stmt->fetch();
+
+        return $usuario;
+    }
 }

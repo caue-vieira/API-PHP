@@ -4,10 +4,14 @@
     ?string $default = null,
     ?string $class = null,
     ?callable $children = null
-) { ?>
+) {
+    
+    $defaultClass = "shadow border border-1 px-1 border-gray-300 rounded-md h-9";
+    $classAttr = $class ? $defaultClass . '' . $class : $defaultClass;
+?>
     <link rel="stylesheet" href="../public/styles/output.css">
     <select
-    class="shadow px-1 <?= $class ?>"
+    class="<?= $classAttr ?>"
     <?= $id ? "id='{$id}'" : '' ?>
     <?= $nome ? "name='{$nome}'" : '' ?>
     >
