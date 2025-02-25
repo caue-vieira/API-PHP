@@ -11,9 +11,9 @@ class Database {
         if(self::$connection === null) {
             try {
                 $host = "localhost";
-                $dbname = "";
+                $dbname = "OEEVipel";
                 $username = "postgres";
-                $password = "";
+                $password = "vipel";
                 $port = "5432";
 
                 self::$connection = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $username, $password, [

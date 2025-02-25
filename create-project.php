@@ -297,6 +297,7 @@ function installTailwind($baseDir, $projectName) {
 
     $packageJsonPath = $baseDir . "/$projectName/package.json";
     file_put_contents($packageJsonPath, json_encode($packageJson));
+    file_put_contents("$baseDir/$projectName/.gitignore", '/node_modules',);
 
     echo "[INFO] Arquivo package.json criado\n";
 
