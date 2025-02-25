@@ -68,7 +68,7 @@ class Router {
         $requestUri = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
         $requestMethod = $_SERVER["REQUEST_METHOD"];
 
-        $requestUri = str_replace(["/'. "$projectName" . '", "/'. "$projectName" . '"], "", $requestUri);
+        $requestUri = str_replace(["/'. $projectName . '", ""], "", $requestUri);
         $requestUri = trim($requestUri, "/");
 
         foreach($this->routes as $route) {
@@ -117,7 +117,7 @@ require_once "src/config/router.php";
 
 $router = new Router();
 
-$router->addRoute("GET", "api/view/{viewName}", ["ViewController", "renderView"]);
+$router->addRoute("GET", "views/{viewName}", ["ViewController", "renderView"]);
 
 $router->handleRequest();',
         "$projectName/.htaccess" => "RewriteEngine On
@@ -273,15 +273,16 @@ class ViewController {
 
 function createProject($baseDir, $projectName) {
     createDirectories($baseDir, $projectName);
+    echo "\n";
     createFiles($baseDir, $projectName);
 
-    echo "\nDeseja utilizar TailwindCSS para estilização? (S/N)";
+    echo "\nDeseja utilizar TailwindCSS para estilização? (S/N) ";
     $input = trim(fgets(STDIN));
 
     if(strtolower($input) === "s") {
         echo "\n\033[1;32mIniciando configurações TailwindCSS...\033[0m\n";
         installTailwind($baseDir, $projectName);
-    } 
+    }
     
     echo "\033[1;32mProjeto criado em $baseDir/$projectName\033[0m";
 }
@@ -333,8 +334,14 @@ function installTailwind($baseDir, $projectName) {
     }
 
     echo "\n\033[1;32mTailwindCSS instalado com sucesso\033[0m\n\n";
-    echo "\033[1;36mPara que o TailwindCSS aplique atualizações dinamicamente, execute o seguinte comando no terminal de seu projeto:\033[0m\n";
-    echo "\033[1;34mnpx tailwindcss -i ./src/views/styles/input.css -o ./public/styles/output.css --watch\033[0m\n\n";
+    $linha = str_repeat("═", 90); // Linha horizontal para destacar a mensagem
+
+    echo "\n\033[1;32m$linha\033[0m\n"; // Linha verde
+    echo "\033[1;36mIMPORTANTE: Para que o TailwindCSS aplique atualizações automaticamente, execute:\033[0m\n";
+    echo "\033[1;34m=> npx tailwindcss -i ./src/views/styles/input.css -o ./public/styles/output.css --watch\033[0m\n";
+    echo "\n\033[1;36mOu, sempre que fizer alterações no CSS, execute:\033[0m\n";
+    echo "\033[1;34m=> npx tailwindcss -i ./src/views/styles/input.css -o ./public/styles/output.css\033[0m\n";
+    echo "\033[1;32m$linha\033[0m\n\n";
 
     if(file_exists($baseDir . "/$projectName/src/views/view.php")) {
         unlink($baseDir . "/$projectName/src/views/view.php");
@@ -343,6 +350,7 @@ function installTailwind($baseDir, $projectName) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../public/styles/output.css">
     <title>Hello, World</title>
 </head>
 <body>
