@@ -15,7 +15,7 @@ use Exception;
 class UsuarioService implements IUsuarioService {
     private IUsuarioRepository $usuarioRepository;
 
-    public function __construct(IusuarioRepository $usuarioRepository) {
+    public function __construct(IUsuarioRepository $usuarioRepository) {
         $this->usuarioRepository = $usuarioRepository;
     }
 

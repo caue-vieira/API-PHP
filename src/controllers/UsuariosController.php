@@ -3,6 +3,7 @@ namespace App\Controllers;
 
 use App\Errors\InvalidDataException;
 use App\Errors\LoginErrorException;
+use App\Http\Request;
 use App\Interfaces\Services\IAuthService;
 use App\Interfaces\Services\IUsuarioService;
 use App\Services\AuthService;
@@ -22,14 +23,9 @@ class UsuariosController {
         $this->authService = new AuthService(new UsuarioRepository());
     }
 
-    public function cadastraUsuario() {
-        header("Content-Type: application/json");
-
-        $json = file_get_contents("php://input");
-        $data = json_decode($json, true);
-
+    public function cadastraUsuario(Request $request) {
         try {
-            $token = $this->usuarioService->criarUsuario($data['nome'], $data['trilha'], $data['email']);
+            $token = $this->usuarioService->criarUsuario($request->input("nome"), $request->input('trilha'), $request->input('email'));
             http_response_code(201);
             echo json_encode(['message' => "Usuario cadastrado com sucesso", 'token' => $token]);
         } catch(Exception $e) {

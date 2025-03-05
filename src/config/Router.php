@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Request;
 class Router {
     private $routes = [];
 
@@ -30,6 +32,10 @@ class Router {
                 $controllerNamespace = "App\\Controllers\\$controllerName";
 
                 $controllerInstance = new $controllerNamespace();
+
+                $request = new Request();
+                array_unshift($matches, $request);
+                
                 call_user_func_array([$controllerInstance, $methodName], $matches);
                 return;
             }

@@ -3,6 +3,7 @@ function createDirectories($baseDir, $projectName) {
     $dirs = [
         "$projectName/public/styles",
         "$projectName/src/config",
+        "$projectName/src/config/http",
         "$projectName/src/controllers",
         "$projectName/src/database",
         "$projectName/src/errors",
@@ -53,6 +54,8 @@ spl_autoload_register(function ($class) {
     }
 });',
         "$projectName/src/config/router.php" => '<?php
+
+use App\Http\Request;
 class Router {
     private $routes = [];
 
@@ -68,7 +71,7 @@ class Router {
         $requestUri = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
         $requestMethod = $_SERVER["REQUEST_METHOD"];
 
-        $requestUri = str_replace(["/'. $projectName . '", ""], "", $requestUri);
+        $requestUri = str_replace(["/teste php", "/teste%20php"], "", $requestUri);
         $requestUri = trim($requestUri, "/");
 
         foreach($this->routes as $route) {
@@ -81,9 +84,13 @@ class Router {
 
                 require_once __DIR__ . "/../controllers/" . $controllerName . ".php";
 
-                $controllerNamespace = "App\\\Controllers\\\$controllerName";
+                $controllerNamespace = "App\\Controllers\\$controllerName";
 
                 $controllerInstance = new $controllerNamespace();
+
+                $request = new Request();
+                array_unshift($matches, $request);
+                
                 call_user_func_array([$controllerInstance, $methodName], $matches);
                 return;
             }
@@ -242,6 +249,25 @@ class ViewController {
             http_response_code(404);
             echo "View não encontrada";
         }
+    }
+}',
+        "$projectName/src/config/http/request.php" => '<?php
+namespace App\Http;
+
+class Request {
+    private array $data;
+
+    public function __construct() {
+        $json = file_get_contents("php://input");
+        $this->data = json_decode($json, true);
+    }
+
+    public function input(string $key, $default = null) {
+        return $this->data[$key] ?? $default;
+    }
+
+    public function all(): array {
+        return $this->data;
     }
 }',
         "$projectName/src/views/view.php" => '<!DOCTYPE html>
