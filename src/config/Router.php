@@ -1,5 +1,5 @@
 <?php
-
+use App\Errors\NoBodyException;
 use App\Http\Request;
 class Router {
     private $routes = [];
@@ -33,10 +33,17 @@ class Router {
 
                 $controllerInstance = new $controllerNamespace();
 
-                $request = new Request();
-                array_unshift($matches, $request);
-                
-                call_user_func_array([$controllerInstance, $methodName], $matches);
+                try {
+                    if($requestMethod !== "GET") {
+                        $request = new Request();
+                        array_unshift($matches, $request);
+                    }
+                    
+                    call_user_func_array([$controllerInstance, $methodName], $matches);
+                } catch(NoBodyException $e) {
+                    http_response_code($e->getCode());
+                    echo json_encode(["message" => $e->getMessage()]);
+                }
                 return;
             }
         }

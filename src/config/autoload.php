@@ -1,4 +1,10 @@
 <?php
+/* Futuras modificações:
+    - Reorganizar pasta "src"
+    - Melhorar identificação de arquivos no autoload.php e router.php
+    - Alterar create-project.php para refletir estas mudanças
+    - Criar arquivo de comandos como o "artisan"
+*/
 spl_autoload_register(function ($class) {
     $baseDir = realpath(__DIR__ . "/../");
 

@@ -1,6 +1,9 @@
 <?php
 function createDirectories($baseDir, $projectName) {
     $dirs = [
+        "$projectName/tests",
+        "$projectName/tests/config",
+        "$projectName/tests/mocks",
         "$projectName/public/styles",
         "$projectName/src/config",
         "$projectName/src/config/http",
@@ -88,8 +91,18 @@ class Router {
 
                 $controllerInstance = new $controllerNamespace();
 
-                $request = new Request();
-                array_unshift($matches, $request);
+                try {
+                    if($requestMethod !== "GET") {
+                        $request = new Request();
+                        array_unshift($matches, $request);
+                    }
+                    
+                    call_user_func_array([$controllerInstance, $methodName], $matches);
+                } catch(NoBodyException $e) {
+                    http_response_code($e->getCode());
+                    echo json_encode(["message" => $e->getMessage()]);
+                }
+                return;
                 
                 call_user_func_array([$controllerInstance, $methodName], $matches);
                 return;
@@ -254,11 +267,16 @@ class ViewController {
         "$projectName/src/config/http/request.php" => '<?php
 namespace App\Http;
 
+use App\Errors\NoBodyException;
+
 class Request {
     private array $data;
 
     public function __construct() {
         $json = file_get_contents("php://input");
+        if(!$json) {
+            throw new NoBodyException("Não foi possível processar a requisição", 400);
+        }
         $this->data = json_decode($json, true);
     }
 
@@ -268,6 +286,17 @@ class Request {
 
     public function all(): array {
         return $this->data;
+    }
+}',
+        "$projectName/src/errors/noBodyException.php" => '<?php
+namespace App\Errors;
+
+use Exception;
+use Throwable;
+
+class NoBodyException extends Exception {
+    public function __construct(string $message = "", int $code = 0, Throwable $previous = null) {
+        parent::__construct($message, $code, $previous);
     }
 }',
         "$projectName/src/views/view.php" => '<!DOCTYPE html>
@@ -283,7 +312,55 @@ class Request {
         <p>Você criou este projeto utilizando o comando create-project.php</p>
     </div>
 </body>
-</html>'
+</html>',
+        "$projectName/tests/config/test_runner.php" => '<?php
+namespace Tests;
+
+use Exception;
+
+require_once __DIR__ . "/../../src/config/autoload.php";
+
+class TestRunner {
+    private array $tests = [];
+
+    public function addTest(callable $testFunction, string $name) {
+        $this->tests[] = ["name" => $name, "function" => $testFunction];
+    }
+
+    public function run() {
+        foreach($this->tests as $test) {
+            try {
+                call_user_func($test["function"]);
+                echo "[✔] PASSED: {$test["name"]}\n";
+            } catch(Exception $e) {
+                echo "[✖] FAILED: {$test["name"]} - " . $e->getMessage() . "\n";
+            }
+        }
+    }
+}
+
+$runner = new TestRunner();
+
+function assertEquals($expected, $recieved, $message = "") {
+    if($expected !== $recieved) {
+        throw new Exception(
+            $message . "\n - Esperado: " . json_encode($expected) . "\n - Recebido: " . json_encode($recieved)
+        );
+    }
+}
+
+$files = array_merge(
+    glob(__DIR__ . "/../mocks/*Mock.php"),
+    glob(__DIR__ . "/../*_test.php"),
+);
+
+foreach($files as $file) {
+    if(!strpos($file, "/config/")) {
+        require_once $file;
+    }
+}
+
+$runner->run();'
     ];
 
     foreach($files as $file => $content) {

@@ -1,0 +1,72 @@
+<?php
+
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+
+$commands = [
+    "create" => "Comando inicial de criação de arquivos",
+];
+
+$complements = [
+    "controller" => "Complemento para criação de controllers",
+    "model" => "Complemento para criação de models",
+    "service" => "Complemento para criação de services",
+    "repository" => "Complemento para criação de repositories"
+];
+
+$flags = [
+    "-c" => "Cria um controller junto do model (pode ser usado apenas durante criação de models)",
+    "-csr" => "Cria controllers, services e repositories junto do model (pode ser usado apenas durante criação de models)",
+    "-sr" => "Cria services e repositories junto do controller (pode ser usado apenas durante criação de controllers)",
+    "--controller" => "Cria um controller",
+    "--service" => "Cria um service",
+];
+
+$args = $argv;
+array_shift($args);
+
+if(empty($args)) {
+    echo "Comandos disponíveis:\n";
+    foreach($commands as $cmd => $desc) {
+        echo " - {$cmd} - {$desc}\n";
+    }
+    echo "\nComplementos disponíveis:\n";
+    foreach($complements as $complement => $desc) {
+        echo " - {$complement} - {$desc}\n";
+    }
+    echo "\nExemplo de comando com complemento:\nphp console create-controller - Cria um novo controller para o projeto\n";
+    exit(0);
+}
+
+$command = array_shift($args);
+
+if(!str_contains($command, "-")) {
+    echo "Para utilizar o comando create, utilize (-) seguido de um complemento\nComplementos disponíveis:\n";
+    foreach($complements as $complement => $desc) {
+        echo " - {$complement} - {$desc}\n";
+    }
+    echo "\nExemplo de comando com complemento:\nphp console create-controller - Cria um novo controller para o projeto\n";
+    exit(0);
+}
+
+switch($command) {
+    case explode("-", $command)[1] == "controller":
+        echo "Controller";
+        break;
+    case explode("-", $command)[1] == "model":
+        echo "Model";
+        break;
+    case explode("-", $command)[1] == "service":
+        echo "Service";
+        break;
+    case explode("-", $command)[1] == "repository":
+        echo "Repository";
+        break;
+    default:
+        echo "Complemento não encontrado...\nComplementos disponíveis:\n";
+        foreach($complements as $complement => $desc) {
+            echo " - {$complement} - {$desc}\n";
+        }
+        echo "\nCaso não tenha encontrado o complemento desejado, verifique a sintaxe ou crie um comando personalizado\n";
+        break;
+}

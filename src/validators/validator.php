@@ -1,8 +1,6 @@
 <?php
 namespace App\Validators;
 
-use App\Errors\EmptyFieldException;
-use App\Errors\InvalidDataException;
 use App\Models\Usuario;
 
 class Validator {
