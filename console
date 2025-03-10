@@ -11,21 +11,22 @@ $complements = [
     "controller" => "Complemento para criação de controllers",
     "model" => "Complemento para criação de models",
     "service" => "Complemento para criação de services",
-    "repository" => "Complemento para criação de repositories"
+    "repository" => "Complemento para criação de repositories",
 ];
 
 $flags = [
     "-c" => "Cria um controller junto do model (pode ser usado apenas durante criação de models)",
     "-csr" => "Cria controllers, services e repositories junto do model (pode ser usado apenas durante criação de models)",
-    "-sr" => "Cria services e repositories junto do controller (pode ser usado apenas durante criação de controllers)",
     "--controller" => "Cria um controller",
     "--service" => "Cria um service",
+    "--repository" => "Cria um repositry",
+    "--mock" => "Cria um mock",
 ];
 
 $args = $argv;
 array_shift($args);
 
-if(empty($args)) {
+function showAvailableCommands($commands, $complements) {
     echo "Comandos disponíveis:\n";
     foreach($commands as $cmd => $desc) {
         echo " - {$cmd} - {$desc}\n";
@@ -34,39 +35,200 @@ if(empty($args)) {
     foreach($complements as $complement => $desc) {
         echo " - {$complement} - {$desc}\n";
     }
-    echo "\nExemplo de comando com complemento:\nphp console create-controller - Cria um novo controller para o projeto\n";
+    echo "\nExemplo de comando com complemento:\nphp console create-controller UsuarioController - Cria um novo controller para o projeto\n";
+}
+
+if(empty($args)) {
+    showAvailableCommands($commands, $complements);
     exit(0);
 }
 
 $command = array_shift($args);
 
-if(!str_contains($command, "-")) {
-    echo "Para utilizar o comando create, utilize (-) seguido de um complemento\nComplementos disponíveis:\n";
-    foreach($complements as $complement => $desc) {
-        echo " - {$complement} - {$desc}\n";
-    }
-    echo "\nExemplo de comando com complemento:\nphp console create-controller - Cria um novo controller para o projeto\n";
+if(!array_key_exists($command, $commands) && !str_contains($command, "-")) {
+    echo "Comando inválido: \"{$command}\".\n";
+    showAvailableCommands($commands, $complements);
+    exit(1);
+}
+
+if(str_contains($command, "create") && !str_contains($command, "-")) {
+    echo "Para utilizar o comando \"create\", utilize (-) seguido de um complemento.\n";
+    showAvailableCommands($commands, $complements);
     exit(0);
 }
 
-switch($command) {
-    case explode("-", $command)[1] == "controller":
-        echo "Controller";
-        break;
-    case explode("-", $command)[1] == "model":
-        echo "Model";
-        break;
-    case explode("-", $command)[1] == "service":
-        echo "Service";
-        break;
-    case explode("-", $command)[1] == "repository":
-        echo "Repository";
-        break;
-    default:
-        echo "Complemento não encontrado...\nComplementos disponíveis:\n";
-        foreach($complements as $complement => $desc) {
-            echo " - {$complement} - {$desc}\n";
+[$cmdPrefix, $complement] = explode("-", $command, 2);
+
+if(!array_key_exists($complement, $complements)) {
+    echo "Complemento \"{$complement}\" não encontrado.\n";
+    showAvailableCommands($commands, $complements);
+    exit(1);
+}
+
+if(empty($args[0])) {
+    echo "Você precisa informar um nome para o arquivo";
+    exit(1);
+}
+
+if(empty($args[1])) {
+    switch($command) {
+        case explode("-", $command)[1] == "controller":
+            echo "Controller";
+            createFiles(["Controller"], ucfirst($args[0]));
+            break;
+        case explode("-", $command)[1] == "model":
+            echo "Model";
+            createFiles(["Model"], ucfirst($args[0]));
+            break;
+        case explode("-", $command)[1] == "service":
+            echo "Service";
+            createFiles(["Service"], ucfirst($args[0]));
+            break;
+        case explode("-", $command)[1] == "repository":
+            echo "Repository";
+            createFiles(["Repository"], ucfirst($args[0]));
+            break;
+    }
+} else {
+    checkFlag($args[1], explode("-", $command)[1], ucfirst($args[0]));
+}
+
+function checkFlag($command, $complement, $name) {
+    switch($command) {
+        case "-c":
+            if($complement == "model") {
+                echo "Criando controller com model";
+                createFiles(["Model", "Controller"], $name);
+                break;
+            }
+            echo "Esta flag não pode ser utilizada com este complemento";
+            break;
+        case "-csr":
+            if($complement == "model") {
+                echo "Criando controller, service e repository";
+                createFiles(["Model", "Controller", "Service", "Repository"], $name);
+                break;
+            }
+            echo "Esta flag não pode ser utilizada com este complemento";
+            break;
+        case "--controller":
+            if($complement == "model") {
+                echo "Criando controller";
+                createFiles(["Controller"], $name);
+                break;
+            }
+            echo "Esta flag não pode ser utilizada com este complemento";
+            break;
+        case "--service":
+            if($complement == "model") {
+                echo "Criando service";
+                createFiles(["Service"], $name);
+                break;
+            }
+            echo "Esta flag não pode ser utilizada com este complemento";
+            break;
+        case "--repository":
+            if($complement == "model") {
+                echo "Criando repository";
+                createFiles(["Repository"], $name);
+                break;
+            }
+            echo "Esta flag não pode ser utilizada com este complemento";
+            break;
+        case "--mock":
+            if($complement == "repository" || $complement == "controller" || $complement == "service") {
+                echo "Criando mock";
+                createFiles(["Mock", ucfirst($complement)], $name, $complement);
+                break;
+            }
+            echo "Esta flag não pode ser utilizada com este complemento";
+            break;
+        default:
+            echo "Flag \"{$command}\" não encontrada";
+            break;
+    }
+}
+
+function createFiles($fileTypes, $fileName, $complement = null) {
+    $baseDir = __DIR__ . "/src";
+
+    foreach($fileTypes as $type) {
+        switch($type) {
+            case "Model":
+                echo "\nCriando: $fileName";
+                $modelDir = "$baseDir/models/$fileName.php";
+                $content = "<?php
+namespace App\Models;
+
+class $fileName {
+
+}";
+                if(!file_exists($modelDir)) {
+                    file_put_contents($modelDir, $content);
+                    break;
+                }
+                echo "\nO arquivo \"$fileName.php\" já existe";
+                break;
+            case "Controller":
+                echo "\nCriando: $fileName$type";
+                $controllerDir = "$baseDir/controllers/$fileName$type.php";
+                $content = "<?php
+namespace App\Controllers;
+
+class $fileName$type {
+
+}";
+                if(!file_exists($controllerDir)) {
+                    file_put_contents($controllerDir, $content);
+                    break;
+                }
+                echo "\nO arquivo \"$fileName$type.php\" já existe";
+                break;
+            case "Service":
+                echo "\nCriando: $fileName$type";
+                $serviceDir = "$baseDir/services/$fileName$type.php";
+                $content = "<?php
+namespace App\Services;
+
+class $fileName$type {
+
+}";
+                if(!file_exists($serviceDir)) {
+                    file_put_contents($serviceDir, $content);
+                    break;
+                }
+                echo "\nO arquivo \"$fileName$type.php\" já existe";
+                break;
+            case "Repository":
+                echo "\nCriando: $fileName$type";
+                $repositoryDir = "$baseDir/repository/$fileName$type.php";
+                $content = "<?php
+namespace App\Repository;
+
+class $fileName$type {
+
+}";
+                if(!file_exists($repositoryDir)) {
+                    file_put_contents($repositoryDir, $content);
+                    break;
+                }
+                echo "\nO arquivo \"$fileName$type.php\" já existe";
+                break;
+            case "Mock":
+                echo "\nCriando: $fileName" . ucfirst($complement) . "$type";
+                $mockDir = __DIR__ . "/tests/mocks/$fileName" . ucfirst($complement) . "$type.php";
+                $content = "<?php
+namespace Tests\Mocks;
+
+class $fileName" . ucfirst($complement) . "$type {
+
+}";
+                if(!file_exists($mockDir)) {
+                    file_put_contents($mockDir, $content);
+                    break;
+                }
+                echo "\nO arquivo \"$fileName" . ucfirst($complement) . "$type.php\" já existe";
+                break;
         }
-        echo "\nCaso não tenha encontrado o complemento desejado, verifique a sintaxe ou crie um comando personalizado\n";
-        break;
+    }
 }

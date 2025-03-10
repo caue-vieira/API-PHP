@@ -1,5 +1,5 @@
 <?php
-namespace App\Http;
+namespace App\Config\Http;
 
 use App\Errors\NoBodyException;
 

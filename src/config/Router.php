@@ -1,6 +1,9 @@
 <?php
+namespace App\Config;
+
 use App\Errors\NoBodyException;
-use App\Http\Request;
+use App\Config\Http\Request;
+
 class Router {
     private $routes = [];
 
