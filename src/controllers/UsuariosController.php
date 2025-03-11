@@ -3,7 +3,7 @@ namespace App\Controllers;
 
 use App\Errors\InvalidDataException;
 use App\Errors\LoginErrorException;
-use App\Http\Request;
+use App\Config\Http\Request;
 use App\Interfaces\Services\IAuthService;
 use App\Interfaces\Services\IUsuarioService;
 use App\Services\AuthService;

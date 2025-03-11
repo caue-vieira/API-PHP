@@ -8,6 +8,6 @@ class ErrorHandler {
         Logger::log($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine(), "ERROR");
 
         http_response_code($e->getCode());
-        echo json_encode(['message' => $e->getMessage()]);
+        echo json_encode(["message" => $e->getMessage()]);
     }
 }

@@ -1,21 +1,6 @@
 <?php
 namespace Index;
 
-/* 
-Arquivos da api para verificar alterações no create-project:
-
-src/config/http/request.php
-src/config/logs/ErrorHandler.php
-src/config/logs/Logger.php
-src/config/autoload.php
-src/config/router.php
-
-src/middleware/requestLogger.php
-
-console
-index.php
-*/
-
 use App\Config\Logs\ErrorHandler;
 use App\Config\Router;
 use App\Middleware\RequestLogger;

@@ -7,6 +7,7 @@ function createDirectories($baseDir, $projectName) {
         "$projectName/public/styles",
         "$projectName/src/config",
         "$projectName/src/config/http",
+        "$projectName/src/config/logs",
         "$projectName/src/controllers",
         "$projectName/src/database",
         "$projectName/src/errors",
@@ -57,8 +58,11 @@ spl_autoload_register(function ($class) {
     }
 });',
         "$projectName/src/config/router.php" => '<?php
+namespace App\Config;
 
-use App\Http\Request;
+use App\Errors\NoBodyException;
+use App\Config\Http\Request;
+
 class Router {
     private $routes = [];
 
@@ -74,7 +78,7 @@ class Router {
         $requestUri = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
         $requestMethod = $_SERVER["REQUEST_METHOD"];
 
-        $requestUri = str_replace(["/teste php", "/teste%20php"], "", $requestUri);
+        $requestUri = str_replace(["/"' . $projectName . ', ""], "", $requestUri);
         $requestUri = trim($requestUri, "/");
 
         foreach($this->routes as $route) {
@@ -87,7 +91,7 @@ class Router {
 
                 require_once __DIR__ . "/../controllers/" . $controllerName . ".php";
 
-                $controllerNamespace = "App\\Controllers\\$controllerName";
+                $controllerNamespace = "App\\\Controllers\\\$controllerName";
 
                 $controllerInstance = new $controllerNamespace();
 
@@ -102,9 +106,6 @@ class Router {
                     http_response_code($e->getCode());
                     echo json_encode(["message" => $e->getMessage()]);
                 }
-                return;
-                
-                call_user_func_array([$controllerInstance, $methodName], $matches);
                 return;
             }
         }
@@ -128,12 +129,22 @@ class UUID {
     }
 }',
         "$projectName/index.php" => '<?php
+namespace Index;
+
+use App\Config\Logs\ErrorHandler;
+use App\Config\Router;
+use App\Middleware\RequestLogger;
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
 header("Content-Type: application/json");
 
+
 require_once "src/config/autoload.php";
 require_once "src/config/router.php";
+
+RequestLogger::logRequest();
+set_exception_handler([ErrorHandler::class, "handleException"]);
 
 $router = new Router();
 
@@ -265,7 +276,7 @@ class ViewController {
     }
 }',
         "$projectName/src/config/http/request.php" => '<?php
-namespace App\Http;
+namespace App\Config\Http;
 
 use App\Errors\NoBodyException;
 
@@ -368,6 +379,7 @@ ini_set("display_errors", 1);
 
 $commands = [
     "create" => "Comando inicial de criação de arquivos",
+    "generate" => "Comando para gerar códigos"
 ];
 
 $complements = [
@@ -375,6 +387,9 @@ $complements = [
     "model" => "Complemento para criação de models",
     "service" => "Complemento para criação de services",
     "repository" => "Complemento para criação de repositories",
+    "getters" => "Complemento para geração de getters em um model",
+    "setters" => "Complemento para geração de setters em um model",
+    "getters/setters" => "Complemento para geração de getters e setters em um model",
 ];
 
 $flags = [
@@ -384,6 +399,7 @@ $flags = [
     "--service" => "Cria um service",
     "--repository" => "Cria um repositry",
     "--mock" => "Cria um mock",
+    "--path" => "Utilizado para comandos que podem pedir um caminho",
 ];
 
 $args = $argv;
@@ -420,6 +436,12 @@ if(str_contains($command, "create") && !str_contains($command, "-")) {
     exit(0);
 }
 
+if(str_contains($command, "generate") && !str_contains($command, "-")) {
+    echo "Para utilizar o comando \\"generate\\", utilize (-) seguido de um complemento.\n";
+    showAvailableCommands($commands, $complements);
+    exit(0);
+}
+
 [$cmdPrefix, $complement] = explode("-", $command, 2);
 
 if(!array_key_exists($complement, $complements)) {
@@ -428,35 +450,59 @@ if(!array_key_exists($complement, $complements)) {
     exit(1);
 }
 
-if(empty($args[0])) {
+if(empty($args[0]) && explode("-", $command)[0] == "create") {
     echo "Você precisa informar um nome para o arquivo";
     exit(1);
 }
 
 if(empty($args[1])) {
-    switch($command) {
-        case explode("-", $command)[1] == "controller":
-            echo "Controller";
-            createFiles(["Controller"], ucfirst($args[0]));
+    switch(explode("-", $command)[0]) {
+        case "create":
+            switch($command) {
+                case explode("-", $command)[1] == "controller":
+                    echo "Controller";
+                    createFiles(["Controller"], ucfirst($args[0]));
+                    break;
+                case explode("-", $command)[1] == "model":
+                    echo "Model";
+                    createFiles(["Model"], ucfirst($args[0]));
+                    break;
+                case explode("-", $command)[1] == "service":
+                    echo "Service";
+                    createFiles(["Service"], ucfirst($args[0]));
+                    break;
+                case explode("-", $command)[1] == "repository":
+                    echo "Repository";
+                    createFiles(["Repository"], ucfirst($args[0]));
+                    break;
+            }
             break;
-        case explode("-", $command)[1] == "model":
-            echo "Model";
-            createFiles(["Model"], ucfirst($args[0]));
-            break;
-        case explode("-", $command)[1] == "service":
-            echo "Service";
-            createFiles(["Service"], ucfirst($args[0]));
-            break;
-        case explode("-", $command)[1] == "repository":
-            echo "Repository";
-            createFiles(["Repository"], ucfirst($args[0]));
-            break;
+        case "generate":
+            if(!empty($args[0])) {
+                switch(explode("-", $command)[1]) {
+                    case  "getters":
+                        echo "Gerando getters...\n";
+                        checkFlag($args[0], "getters");
+                        break;
+                    case "setters":
+                        echo "Gerando setters...\n";
+                        checkFlag($args[0], "setters");
+                        break;
+                    case "getters/setters";
+                        echo "Gerando getters e setters...\n";
+                        checkFlag($args[0], "getters/setters");
+                        break;
+                }
+                break;
+            } else {
+                echo "\nVocê precisa passar o caminho do arquivo que deseja gerar o código\n";
+            }
     }
 } else {
     checkFlag($args[1], explode("-", $command)[1], ucfirst($args[0]));
 }
 
-function checkFlag($command, $complement, $name) {
+function checkFlag($command, $complement, $name = null) {
     switch($command) {
         case "-c":
             if($complement == "model") {
@@ -505,6 +551,17 @@ function checkFlag($command, $complement, $name) {
                 break;
             }
             echo "Esta flag não pode ser utilizada com este complemento";
+            break;
+        case str_contains($command, "--path"):
+            if(!str_contains($command, "=")) {
+                echo "Você precisa passar um caminho para a geração\n";
+                break;
+            }
+            $filePath = explode("=", $command);
+            if(!file_exists($filePath[1])) {
+                echo "Arquivo não encontrado\n";
+                break;
+            }
             break;
         default:
             echo "Flag \\"{$command}\\" não encontrada";
@@ -593,6 +650,51 @@ class $fileName" . ucfirst($complement) . "$type {
                 echo "\nO arquivo \\"$fileName" . ucfirst($complement) . "$type.php\\" já existe";
                 break;
         }
+    }
+}',
+        "$projectName/src/config/logs/ErrorHandler.php" => '<?php
+namespace App\Config\Logs;
+
+use Throwable;
+
+class ErrorHandler {
+    public static function handleException(Throwable $e): void {
+        Logger::log($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine(), "ERROR");
+
+        http_response_code($e->getCode());
+        echo json_encode(["message" => $e->getMessage()]);
+    }
+}',
+        "$projectName/src/config/logs/Logger.php" => '<?php
+namespace App\Config\Logs;
+
+class Logger {
+    private static string $logFile = __DIR__ . "/app.log";
+
+    public static function log(string $message, string $level = "INFO"): void {
+        $date = date("Y-m-d H:i:s");
+        $logMessage = "[$date] [$level] $message" . PHP_EOL;
+
+        file_put_contents(self::$logFile, $logMessage, FILE_APPEND);
+    }
+}',
+        "$projectName/.env" => 'PG_HOST:
+PG_DBNAME:
+PG_USER: postgres
+PG_PASSWORD:
+PG_PORT: 5432',
+        "$projectName/src/middleware/requestLogger.php" => '<?php
+namespace App\Middleware;
+
+use App\Config\Logs\Logger;
+
+class RequestLogger {
+    public static function logRequest(): void {
+        $method = $_SERVER["REQUEST_METHOD"] ?? "UNKNOWN";
+        $uri = $_SERVER["REQUEST_URI"] ?? "UNKNOWN";
+        $ip = $_SERVER["REMOTE_ADDR"] ?? "UNKNOWN";
+
+        Logger::log("Nova requisição: [$method] $uri de $ip", "REQUEST");
     }
 }'
     ];
