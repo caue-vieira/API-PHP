@@ -23,3 +23,35 @@
 [2025-03-10 15:41:32] [REQUEST] Nova requisição: [POST] /teste%20php/api/login de 127.0.0.1
 [2025-03-10 15:41:43] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
 [2025-03-10 15:41:51] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-13 12:13:45] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 13:54:13] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 13:54:23] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 13:54:27] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 13:55:39] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 13:55:40] [ERROR] Failed opening required 'C:\xampp\htdocs\teste php\api\src\config/../controllers/App\Controllers\UsuariosController.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\teste php\api\src\config\router.php on line 62
+[2025-03-17 13:58:10] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 13:58:10] [ERROR] Failed opening required 'C:\xampp\htdocs\teste php\api\src\config/../controllers/App\Controllers\UsuariosController.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\teste php\api\src\config\router.php on line 62
+[2025-03-17 13:58:12] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 13:58:12] [ERROR] Failed opening required 'C:\xampp\htdocs\teste php\api\src\config/../controllers/App\Controllers\UsuariosController.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\teste php\api\src\config\router.php on line 62
+[2025-03-17 13:58:41] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 13:58:41] [ERROR] Failed opening required '../controllersApp\Controllers\UsuariosController.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\teste php\api\src\config\router.php on line 62
+[2025-03-17 13:58:52] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 13:58:52] [ERROR] Failed opening required '/../controllersApp\Controllers\UsuariosController.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\teste php\api\src\config\router.php on line 62
+[2025-03-17 13:59:30] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 13:59:30] [ERROR] Failed opening required 'C:\xampp\htdocs\teste php\api\src\config/../controllers/App\Controllers\UsuariosController.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\teste php\api\src\config\router.php on line 62
+[2025-03-17 14:00:42] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 14:00:42] [ERROR] Failed opening required 'C:\xampp\htdocs\teste php\api\src\config/../controllers/App\Controllers\UsuariosController.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\teste php\api\src\config\router.php on line 62
+[2025-03-17 14:00:54] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 14:00:54] [ERROR] Failed opening required 'C:\xampp\htdocs\teste php\api\src\config/../controllers/App\Controllers\UsuariosController.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\teste php\api\src\config\router.php on line 62
+[2025-03-17 14:02:28] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 14:03:11] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 14:03:11] [ERROR] Class name must be a valid object or a string in C:\xampp\htdocs\teste php\api\src\config\router.php on line 25
+[2025-03-17 14:04:23] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 14:04:24] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 14:04:59] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 14:05:36] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar de 127.0.0.1
+[2025-03-17 14:14:48] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/buscar/ de 127.0.0.1
+[2025-03-17 14:15:11] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/1/buscar de 127.0.0.1
+[2025-03-17 14:15:15] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/1/buscar de 127.0.0.1
+[2025-03-17 14:15:18] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/2/buscar de 127.0.0.1
+[2025-03-17 14:15:23] [REQUEST] Nova requisição: [GET] /teste%20php/api/usuarios/3/buscar de 127.0.0.1

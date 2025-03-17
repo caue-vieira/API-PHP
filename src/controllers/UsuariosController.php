@@ -1,6 +1,7 @@
 <?php
 namespace App\Controllers;
 
+use App\Config\Routes\Route;
 use App\Errors\InvalidDataException;
 use App\Errors\LoginErrorException;
 use App\Config\Http\Request;
@@ -36,6 +37,7 @@ class UsuariosController {
         }
     }
 
+    #[Route("GET", "api/usuarios/buscar")]
     public function buscarUsuarios() {
         header("Content-Type: application/json");
 
@@ -48,6 +50,11 @@ class UsuariosController {
                 echo json_encode(['message' => $e->getMessage()]);
             }
         }
+    }
+
+    #[Route("GET", "api/usuarios/{id}/buscar")]
+    public function buscarUsuarioId(int $id) {
+        echo json_encode(['message' => "Buscando usuário com id: $id"]);
     }
 
     public function login() {
